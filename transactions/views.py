@@ -73,7 +73,8 @@ class DepositMoneyView(TransactionCreateMixin):
         )
         mail_subject = 'Deposit Message'
         message = render_to_string('transactions/deposite_email.html', {
-            'user' : self.request.user
+            'user' : self.request.user,
+            'amount': amount,
         })
         to_email = self.request.user.email
         send_email = EmailMultiAlternatives(mail_subject, '', to=[to_email])
@@ -105,7 +106,15 @@ class WithdrawMoneyView(TransactionCreateMixin):
             self.request,
             f'Successfully withdrawn {"{:,.2f}".format(float(amount))}$ from your account'
         )
-
+        mail_subject = 'Withdraw Message'
+        message = render_to_string('transactions/withdraw_email.html', {
+            'user' : self.request.user,
+            'amount': amount,
+        })
+        to_email = self.request.user.email
+        send_email = EmailMultiAlternatives(mail_subject, '', to=[to_email])
+        send_email.attach_alternative(message, "text/html")
+        send_email.send()
         return super().form_valid(form)
 
 class LoanRequestView(TransactionCreateMixin):
